@@ -1,11 +1,11 @@
 import random
 from base import BaseAgent, Action
 
-
 class Agent(BaseAgent):
 
     def do_turn(self) -> Action:
-
+        # map = Map(self.grid)
+        # print(map.get_show())
         return random.choice(
             [Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT, Action.DOWN_RIGHT, Action.DOWN_LEFT, Action.UP_LEFT,
              Action.UP_RIGHT, Action.NOOP])
