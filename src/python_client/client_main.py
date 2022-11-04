@@ -18,23 +18,23 @@ class Agent(BaseAgent):
             # print(y)
             if x == 0:
                 if y == 1:
-                    self.actions.append(Action.LEFT)
-                elif y == -1:
                     self.actions.append(Action.RIGHT)
-            if x == 1:
-                if y == 0:
-                    self.actions.append(Action.UP)
-                elif y == 1:
-                    self.actions.append(Action.UP_LEFT)
                 elif y == -1:
-                    self.actions.append(Action.UP_RIGHT)
-            if x == -1:
+                    self.actions.append(Action.LEFT)
+            if x == 1:
                 if y == 0:
                     self.actions.append(Action.DOWN)
                 elif y == 1:
-                    self.actions.append(Action.DOWN_LEFT)
-                elif y == -1:
                     self.actions.append(Action.DOWN_RIGHT)
+                elif y == -1:
+                    self.actions.append(Action.DOWN_LEFT)
+            if x == -1:
+                if y == 0:
+                    self.actions.append(Action.UP)
+                elif y == 1:
+                    self.actions.append(Action.UP_RIGHT)
+                elif y == -1:
+                    self.actions.append(Action.UP_LEFT)
             # print(self.actions)
 
     def generate_actions(self):
