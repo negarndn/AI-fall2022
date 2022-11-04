@@ -1,8 +1,4 @@
-from abc import ABC
 from math import sqrt
-
-from base import BaseAgent
-
 
 def gem_sequence():
     pass
@@ -34,6 +30,11 @@ class FindPath:
         self.current_node = None
         self.final_path = []
 
+
+
+
+
+
     def find_path(self, start, end):
         self.start = self.grid[start[0]][start[1]]
         self.end = self.grid[end[0]][end[1]]
@@ -42,7 +43,8 @@ class FindPath:
             self.a_star()
             if len(self.final_path) > 0:
                 break
-        print(self.final_path)
+
+        return self.final_path
 
     def a_star(self):
         best_way = 0
@@ -152,27 +154,27 @@ class FindPath:
 
 
 
-if __name__ == '__main__':
-    # grid = [
-    #     ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-    #     ['E', '1', '2', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
-    #     ['E', 'E', '3', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
-    #     ['E', 'E', 'E', 'E', 'r', 'E', 'E', 'E', 'E', 'R', 'R', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E'],
-    #     ['E', 'E', 'E', 'E', '3', 'E', 'E', 'Y', 'Y', 'E', 'E', '2', 'E', 'y', 'E', 'E', 'E', 'E', 'E', 'E'],
-    #     ['E', 'E', 'E', '*', 'E', 'E', '2', 'E', '1', '1', '1', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-    #     ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'g', 'r', 'y', 'E', 'E', 'E', 'E', 'E', 'E']
-    # ]
-    # height = 7
-    # width = 20
-    grid = [
-        ['E', 'E', 'E', 'E'],
-        ['E', 'W', 'W', 'W'],
-        ['E', 'E', 'E', 'E']
-    ]
-    height = 3
-    width = 4
-
-    f = FindPath(grid, height, width)
-    # f.show_grid()
-    f.find_path((0, 0), (2, 3))
+# if __name__ == '__main__':
+#     grid = [
+#         ['EA', 'E', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['E', '1', '2', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
+#         ['E', 'E', '3', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
+#         ['E', 'E', 'E', 'E', 'r', 'E', 'E', 'E', 'E', 'R', 'R', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E'],
+#         ['E', 'E', 'E', 'E', '3', 'E', 'E', 'Y', 'Y', 'E', 'E', '2', 'E', 'y', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['E', 'E', 'E', '*', 'E', 'E', '2', 'E', '1', '1', '1', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'g', 'r', 'y', 'E', 'E', 'E', 'E', 'E', 'E']
+#     ]
+#     height = 7
+#     width = 20
+#     # grid = [
+#     #     ['E', 'E', 'E', 'E'],
+#     #     ['E', 'W', 'W', 'W'],
+#     #     ['E', 'E', 'E', 'E']
+#     # ]
+#     # height = 3
+#     # width = 4
+#
+#     f = FindPath(grid, height, width)
+#     # f.show_grid()
+#     f.find_path((0, 0), (2, 3))
 
