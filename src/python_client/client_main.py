@@ -3,7 +3,7 @@ from base import BaseAgent, Action
 from pathfinding import FindPath
 
 from pathfinding import FindPath, Node
-from gem import Gem, GEMS_SCORES
+from gem import Gem, GEM_SCORES
 from operator import attrgetter
 from math import sqrt
 
@@ -27,29 +27,33 @@ class Agent(BaseAgent):
         self.agent = Node(0, 0)
         self.find_gems()
 
+
     def convert_path_to_action(self, final_path):
+
         for i in range(len(final_path) - 1):
-            y = final_path[i][1] - final_path[i+1][1]
-            x = final_path[i][0] - final_path[i+1][0]
+            x = final_path[i][1] - final_path[i+1][1]
+            y = final_path[i][0] - final_path[i+1][0]
             if x == 0:
                 if y == 1:
-                    self.actions.append(Action.RIGHT)
+                    self.actions.append(Action.DOWN)
                 elif y == -1:
-                    self.actions.append(Action.LEFT)
+                    self.actions.append(Action.UP)
             if x == 1:
                 if y == 0:
-                    self.actions.append(Action.DOWN)
+                    self.actions.append(Action.RIGHT)
                 elif y == 1:
                     self.actions.append(Action.DOWN_RIGHT)
                 elif y == -1:
-                    self.actions.append(Action.DOWN_LEFT)
+                    self.actions.append(Action.UP_RIGHT)
             if x == -1:
                 if y == 0:
-                    self.actions.append(Action.UP)
+                    self.actions.append(Action.LEFT)
                 elif y == 1:
-                    self.actions.append(Action.UP_RIGHT)
+                    self.actions.append(Action.DOWN_LEFT)
                 elif y == -1:
                     self.actions.append(Action.UP_LEFT)
+        self.actions.reverse()
+        print(self.actions)
 
     def evaluate_gems(self, remaining_gems) -> list:
         evaluated_gems = []
@@ -73,18 +77,16 @@ class Agent(BaseAgent):
                 return most_valuable_gem
         # TODO: Return Agent location as node if it does not find any valid goal
 
-    # def is_gem(self, tile) -> bool:
-    #     return str(tile) == "1" or str(tile) == "2" or str(tile) == "3" or str(tile) == "4"
-
     def find_gems(self):
         for x in range(self.grid_height):
             for y in range(self.grid_width):
-                print( self.grid)
-                if self.grid[x][y] in ['1', '2', '3', '4']:
-                    gem = Gem(x,y)
-                    gem.type = int(self.grid[x][y])
-                    gem.score = GEMS_SCORES[self.grid[x][y]]
-                    self.gems_list.append(gem)
+                pass
+                # print( self.grid)
+                # if self.grid[x][y] in ['1', '2', '3', '4']:
+                #     gem = Gem(x, y)
+                #     gem.type = self.grid[x][y]
+                #     gem.score = GEM_SCORES[self.grid[x][y]]
+                #     self.gems_list.append(gem)
 
     def generate_actions(self):
         path = FindPath(self.grid, self.grid_height, self.grid_width)
@@ -92,13 +94,14 @@ class Agent(BaseAgent):
         # self.gems_list.remove(goal)
         # goal_location = (goal.x, goal.y)
         # agent_location = (self.agent.x, self.agent.y)
-        final_path = path.find_path((0,0), (6,19))
+        final_path = path.find_path((0, 0), (6, 19))
+        print(final_path)
         self.convert_path_to_action(final_path)
 
     def do_turn(self) -> Action:
         if len(self.actions) == 0:
             self.generate_actions()
-        if len(self.actions) > self.max_turn_count:
+        if len(self.actions) > self.max_turn_count - self.turn_count:
             self.actions = []
             self.generate_actions()
             # for _ in self.actions:
@@ -109,6 +112,7 @@ class Agent(BaseAgent):
         # return random.choice(
         #     [Action.UP, Action.DOWN, Action.LEFT, Action.RIGHT, Action.DOWN_RIGHT, Action.DOWN_LEFT, Action.UP_LEFT,
         #      Action.UP_RIGHT, Action.NOOP])
+
 
 if __name__ == '__main__':
     data = Agent().play()

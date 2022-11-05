@@ -1,8 +1,6 @@
-from cmath import sqrt
-from client_main import Agent
 from pathfinding import Node
 
-GEMS_SCORES = {"1": 50, "2": 100, "3": 200, "4": 300}
+GEM_SCORES = {"1": 50, "2": 100, "3": 200, "4": 300}
 
 
 class Gem(Node):
@@ -11,5 +9,3 @@ class Gem(Node):
         self.score = None
         self.color = None
         self.evaluation_result = None
-
-
