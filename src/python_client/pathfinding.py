@@ -92,9 +92,11 @@ class FindPath:
         elif node.type in ['r', 'y', 'g']:
             self.keys.append(node.type)
         elif node.type in ['R', 'Y', 'G']:
-            pass
+            return self.check_door(node)
         else:
             return True
+
+
 
     def find_neighbors(self, node):
         x = node.x
@@ -150,7 +152,18 @@ class FindPath:
         else:
             return 1
 
-
+    def check_door(self, node):
+        if node.type == "R":
+            if "r" in self.keys:
+                return True
+        elif node.type == "Y":
+            if "y" in self.keys:
+                return True
+        elif node.type == "G":
+            if "g" in self.keys:
+                return True
+        else:
+            return False
 
 # if __name__ == '__main__':
 #     grid = [
