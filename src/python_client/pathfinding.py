@@ -29,11 +29,7 @@ class FindPath:
         self.closed_set = []
         self.current_node = None
         self.final_path = []
-
-
-
-
-
+        #TODO consider remained score
 
     def find_path(self, start, end):
         self.start = self.grid[start[0]][start[1]]
@@ -62,18 +58,14 @@ class FindPath:
                 temp = temp.previous
             self.final_path.append((self.start.x, self.start.y))
 
-
         # open_set = self.clean_open_set(self.open_set, self.current_node)
         # self.closed_set.append(self.current_node)
 
         neighbors = self.find_neighbors(self.current_node)
         for i, neighbor in enumerate(neighbors):
             if self.can_go(neighbor):
-                # for diagonals neighbors
-                if self.is_diagonals(neighbor):
-                    temp_g = self.current_node.g + 2
-                else:
-                    temp_g = self.current_node.g + 1
+                temp_g = self.current_node.g + self.g_score(neighbor)
+
                 control_flag = 0
                 if neighbor in self.open_set:
                     if temp_g < neighbor.g:
@@ -90,6 +82,7 @@ class FindPath:
         node.h = self.h_score(node)
         node.f = node.g + node.h
         node.previous = self.current_node
+
     def h_score(self, node):
         distance = sqrt(abs(node.x - self.end.x)**2 + abs(node.y - self.end.y)**2)
         return distance
@@ -97,6 +90,7 @@ class FindPath:
     def can_go(self, node):
         if (node in self.closed_set) or (node.type == 'W'):
             return False
+        #TODO add door and keys
         # elif node.type == 'DOOR':
         #     pass
         else:
@@ -148,9 +142,13 @@ class FindPath:
                 print(f"{self.grid[i][j].type}, ", end='')
         print()
 
-    def is_diagonals(self, node):
-        if abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
-            return True
+    def g_score(self, node):
+        if node.type == '*':
+            return 20
+        elif abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
+            return 2
+        else:
+            return 1
 
 
 
