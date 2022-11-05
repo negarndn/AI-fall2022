@@ -1,8 +1,5 @@
 from math import sqrt
 
-def gem_sequence():
-    pass
-
 
 class Node:
     def __init__(self, x, y):
