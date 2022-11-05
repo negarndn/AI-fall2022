@@ -1,10 +1,10 @@
+from pathfinding import Node
+
 GEMS_SCORES = {"1": 50, "2": 100, "3": 200, "4": 300}
 
 
-class Gem:
+class Gem(Node):
     def __init__(self):
-        self.x = None
-        self.y = None
-        self.type = None
         self.score = None
+        self.color = None
         self.evaluation_result = None
