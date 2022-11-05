@@ -72,7 +72,7 @@ class FindPath:
                     self.update_node(neighbor, temp_g)
                     self.open_set.append(neighbor)
 
-        self.closed_set.append(self.current_node)
+                self.closed_set.append(self.current_node)
 
 
     def update_node(self, node, temp_g):
@@ -86,15 +86,17 @@ class FindPath:
         return distance
 
     def can_go(self, node):
-        if (node in self.closed_set) or (node.type == 'W'):
+        if (node in self.closed_set) or (node.type in ['W', 'R', 'G', 'Y']):
             return False
-        #TODO add door and keys
-        elif node.type in ['r', 'y', 'g']:
-            self.keys.append(node.type)
-        elif node.type in ['R', 'Y', 'G']:
-            return self.check_door(node)
         else:
             return True
+        #TODO add door and keys
+        # elif node.type in ['r', 'y', 'g']:
+        #     self.keys.append(node.type)
+        # elif node.type in ['R', 'Y', 'G']:
+        #     return self.check_door(node)
+        # else:
+        #     return True
 
 
 
@@ -145,7 +147,7 @@ class FindPath:
         print()
 
     def g_score(self, node):
-        if node.type == '*':
+        if node.type == "*":
             return 20
         elif abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
             return 2
@@ -155,12 +157,15 @@ class FindPath:
     def check_door(self, node):
         if node.type == "R":
             if "r" in self.keys:
+                self.keys.pop(self.keys.index('r'))
                 return True
         elif node.type == "Y":
             if "y" in self.keys:
+                self.keys.pop(self.keys.index('y'))
                 return True
         elif node.type == "G":
             if "g" in self.keys:
+                self.keys.pop(self.keys.index('g'))
                 return True
         else:
             return False

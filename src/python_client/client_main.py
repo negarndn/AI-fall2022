@@ -12,30 +12,31 @@ class Agent(BaseAgent):
     def convert_path_to_action(self, final_path):
 
         for i in range(len(final_path) - 1):
-            y = final_path[i][1] - final_path[i+1][1]
-            x = final_path[i][0] - final_path[i+1][0]
+            x = final_path[i][1] - final_path[i+1][1]
+            y = final_path[i][0] - final_path[i+1][0]
             # print(x)
             # print(y)
             if x == 0:
                 if y == 1:
-                    self.actions.append(Action.RIGHT)
+                    self.actions.append(Action.DOWN)
                 elif y == -1:
-                    self.actions.append(Action.LEFT)
+                    self.actions.append(Action.UP)
             if x == 1:
                 if y == 0:
-                    self.actions.append(Action.DOWN)
+                    self.actions.append(Action.RIGHT)
                 elif y == 1:
                     self.actions.append(Action.DOWN_RIGHT)
                 elif y == -1:
-                    self.actions.append(Action.DOWN_LEFT)
+                    self.actions.append(Action.UP_RIGHT)
             if x == -1:
                 if y == 0:
-                    self.actions.append(Action.UP)
+                    self.actions.append(Action.LEFT)
                 elif y == 1:
-                    self.actions.append(Action.UP_RIGHT)
+                    self.actions.append(Action.DOWN_LEFT)
                 elif y == -1:
                     self.actions.append(Action.UP_LEFT)
-            # print(self.actions)
+        self.actions.reverse()
+        print(self.actions)
 
     def generate_actions(self):
         f = FindPath(self.grid, self.grid_height, self.grid_width)
