@@ -26,6 +26,8 @@ class FindPath:
         self.closed_set = []
         self.current_node = None
         self.final_path = []
+        self.keys = []
+        #TODO consider remained score
 
     def find_path(self, start, end):
         self.start = self.grid[start[0]][start[1]]
@@ -60,11 +62,8 @@ class FindPath:
         neighbors = self.find_neighbors(self.current_node)
         for i, neighbor in enumerate(neighbors):
             if self.can_go(neighbor):
-                # for diagonals neighbors
-                if self.is_diagonals(neighbor):
-                    temp_g = self.current_node.g + 2
-                else:
-                    temp_g = self.current_node.g + 1
+                temp_g = self.current_node.g + self.g_score(neighbor)
+
                 control_flag = 0
                 if neighbor in self.open_set:
                     if temp_g < neighbor.g:
@@ -73,7 +72,8 @@ class FindPath:
                     self.update_node(neighbor, temp_g)
                     self.open_set.append(neighbor)
 
-        self.closed_set.append(self.current_node)
+                self.closed_set.append(self.current_node)
+
 
     def update_node(self, node, temp_g):
         node.g = temp_g
@@ -86,12 +86,20 @@ class FindPath:
         return distance
 
     def can_go(self, node):
-        if (node in self.closed_set) or (node.type == 'W'):
+        if (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R']):
             return False
-        # elif node.type == 'DOOR':
-        #     pass
+
+        #TODO add door and keys
+
+        # elif node.type in ['r', 'y', 'g']:
+        #     self.keys.append(node.type)
+        #     return True
+        # elif node.type in ['R', 'Y', 'G']:
+        #     return self.check_door(node)
         else:
             return True
+
+
 
     def find_neighbors(self, node):
         x = node.x
@@ -139,7 +147,55 @@ class FindPath:
                 print(f"{self.grid[i][j].type}, ", end='')
         print()
 
-    def is_diagonals(self, node):
-        if abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
-            return True
+    def g_score(self, node):
+        if node.type == "*":
+            return 20
+        elif abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
+            return 2
+        else:
+            return 1
+
+    def check_door(self, node):
+        print(self.keys)
+        if node.type == "R":
+            if "r" in self.keys:
+                return True
+            else:
+                return False
+        elif node.type == "Y":
+            if "y" in self.keys:
+                return True
+            else:
+                return False
+        elif node.type == "G":
+            if "g" in self.keys:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+# if __name__ == '__main__':
+#     grid = [
+#         ['EA', 'E', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['E', '1', '2', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
+#         ['E', 'E', '3', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
+#         ['E', 'E', 'E', 'E', 'r', 'E', 'E', 'E', 'E', 'R', 'R', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E'],
+#         ['E', 'E', 'E', 'E', '3', 'E', 'E', 'Y', 'Y', 'E', 'E', '2', 'E', 'y', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['E', 'E', 'E', '*', 'E', 'E', '2', 'E', '1', '1', '1', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'g', 'r', 'y', 'E', 'E', 'E', 'E', 'E', 'E']
+#     ]
+#     height = 7
+#     width = 20
+#     # grid = [
+#     #     ['E', 'E', 'E', 'E'],
+#     #     ['E', 'W', 'W', 'W'],
+#     #     ['E', 'E', 'E', 'E']
+#     # ]
+#     # height = 3
+#     # width = 4
+#
+#     f = FindPath(grid, height, width)
+#     # f.show_grid()
+#     f.find_path((0, 0), (2, 3))
 
