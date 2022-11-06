@@ -21,9 +21,8 @@ class Agent(BaseAgent):
         self.last_gem = 0
         self.agent = None
         self.last_goal = Node(0, 0)
-        self.current_goal = Node(0, 0)
-        self.visited_goals = []
         self.gems_list = []
+        self.finished = False
 
     def convert_path_to_action(self, final_path):
         for i in range(len(final_path) - 1):
@@ -31,24 +30,24 @@ class Agent(BaseAgent):
             y = final_path[i][0] - final_path[i + 1][0]
             if x == 0:
                 if y == 1:
-                    self.actions.append(Action.UP)
-                elif y == -1:
                     self.actions.append(Action.DOWN)
-            if x == 1:
-                if y == 0:
-                    self.actions.append(Action.LEFT)
-                elif y == 1:
-                    self.actions.append(Action.UP_LEFT)
                 elif y == -1:
-                    self.actions.append(Action.DOWN_LEFT)
-            if x == -1:
+                    self.actions.append(Action.UP)
+            if x == 1:
                 if y == 0:
                     self.actions.append(Action.RIGHT)
                 elif y == 1:
-                    self.actions.append(Action.UP_RIGHT)
-                elif y == -1:
                     self.actions.append(Action.DOWN_RIGHT)
-        # self.actions.reverse()
+                elif y == -1:
+                    self.actions.append(Action.UP_RIGHT)
+            if x == -1:
+                if y == 0:
+                    self.actions.append(Action.LEFT)
+                elif y == 1:
+                    self.actions.append(Action.DOWN_LEFT)
+                elif y == -1:
+                    self.actions.append(Action.UP_LEFT)
+        self.actions.reverse()
 
     def evaluate_gems(self, remaining_gems) -> list:
         evaluated_gems = []
@@ -59,22 +58,17 @@ class Agent(BaseAgent):
             evaluated_gems.append(gem)
         return evaluated_gems
 
-    def choose_goal(self, remaining_gems) -> Gem:
+    def choose_goal(self) -> list:
         # remaining_gems = self.find_gems()
-        evaluated_gems = self.evaluate_gems(remaining_gems)
-        for _ in range(len(evaluated_gems)):
-            most_valuable_gem = max(evaluated_gems, key=attrgetter('evaluation_result'))
-            manhattan_distance = abs(self.agent.x - most_valuable_gem.x) + abs(self.agent.y - most_valuable_gem.y)
+        evaluated_gems = self.evaluate_gems(self.gems_list)
+        evaluated_gems.sort(key=attrgetter("evaluation_result"), reverse=True)
+        for gem in evaluated_gems:
+            manhattan_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
             if self.max_turn_count - self.turn_count < manhattan_distance:
-                for i, o in enumerate(evaluated_gems):
-                    if o.x == most_valuable_gem.x and o.y == most_valuable_gem.y:
-                        del evaluated_gems[i]
-                        break
+                evaluated_gems.pop(evaluated_gems.index(gem))
                 continue
-            else:
-                self.current_goal = most_valuable_gem
-                return most_valuable_gem
-        # TODO: Return Agent location as node if it does not find any valid goal
+        if not len(evaluated_gems) == 0:
+            return evaluated_gems
         return self.agent
 
     def find_gems(self) -> list:
@@ -88,77 +82,41 @@ class Agent(BaseAgent):
                     gems_list.append(gem)
         return gems_list
 
-    def get_current_location_of_agent(self):
-        for x in range(self.grid_height):
-            for y in range(self.grid_width):
-                if self.grid[x][y].find("A") == -1:
-                    location = (x, y)
-                    return location
-
-    def generate_actions(self, current_location, remaining_gems):
-        self.agent = current_location
-        if not current_location.type == '':
-            self.last_gem = int(current_location.type)
+    def generate_actions(self):
+        self.agent = self.last_goal
+        if not self.last_goal.type == '':
+            self.last_gem = int(self.last_goal.type)
         f = FindPath(self.grid, self.grid_height, self.grid_width)
-        goal = self.choose_goal(remaining_gems)
-        print(goal.x, goal.y, goal.type, goal.evaluation_result)
-        goal_location = (goal.x, goal.y)
+        goals_list = self.choose_goal()
         agent_location = (self.agent.x, self.agent.y)
-        final_path = f.find_path(agent_location, goal_location)
-        print(final_path[::-1])
-        self.convert_path_to_action(final_path[::-1])
-        print(self.actions)
+        for goal in goals_list:
+            goal_location = (goal.x, goal.y)
+            print(goal.x, goal.y)
+            final_path = f.find_path(agent_location, goal_location)
+            print("final")
+            print(final_path)
+            print("agent location")
+            print(agent_location)
+            if len(final_path) - 1 < self.max_turn_count - self.turn_count:
+                print("-------------------")
+                print(self.max_turn_count - self.turn_count, len(final_path) - 1)
+                self.convert_path_to_action(final_path)
+                print(self.actions)
+                self.last_goal = goal
+                return
+            else:
+                self.gems_list.pop(self.gems_list.index(goal))
 
-    def __eq__(self, other):
-        return self.title == other.title
+        self.finished = True
 
     def do_turn(self) -> Action:
-        if self.turn_count == 1:
-            self.gems_list = self.find_gems()
-
-        if len(self.actions) == 0:
-            remaining_gems = self.find_gems()
-            self.generate_actions(self.current_goal, remaining_gems)
-
-        if len(self.actions) > self.max_turn_count - self.turn_count:
-            print("in shart: " + str(self.max_turn_count - self.turn_count), str(len(self.actions)))
-            self.actions.clear()
-            remaining_gems = self.find_gems()
-            print(self.current_goal.x, self.current_goal.y, self.current_goal.type, self.current_goal.evaluation_result)
-            print(remaining_gems)
-            for i, o in enumerate(remaining_gems):
-                if o.x == self.current_goal.x and o.y == self.current_goal.y:
-                    del remaining_gems[i]
-                    break
-            self.generate_actions(self.last_goal, remaining_gems)
-            # for _ in self.actions:
-            #     self.actions.append(Action.NOOP)
-
-        else:
-            self.last_goal = self.current_goal
-            print("last goal")
-            print(self.last_goal.x, self.last_goal.y)
-            remaining_gems = self.find_gems()
-            agent_location = self.get_current_location_of_agent()
-            for gem in self.gems_list:
-                print("agent loc")
-                print(agent_location)
-                if agent_location[0] == gem.x and agent_location[1] == gem.y:
-                    self.visited_goals.append(gem)
-                    print("len visited goals")
-                    print(len(self.visited_goals))
-            for i, o in enumerate(remaining_gems):
-                if o.x == self.last_goal.x and o.y == self.last_goal.y:
-                    del remaining_gems[i]
-                for visited_goal in self.visited_goals:
-                    print("visited goal")
-                    print(visited_goal.x, visited_goal.y)
-                    if o.x == visited_goal.x and o.y == visited_goal.y:
-                        del remaining_gems[i]
-
-            self.generate_actions(self.last_goal, remaining_gems)
+        self.gems_list = self.find_gems()
+        if not self.finished:
+            if len(self.actions) == 0:
+                self.generate_actions()
             return self.actions.pop(0)
-
+        else:
+            return Action.NOOP
 
 if __name__ == '__main__':
     data = Agent().play()
