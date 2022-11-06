@@ -59,7 +59,6 @@ class Agent(BaseAgent):
         return evaluated_gems
 
     def choose_goal(self) -> list:
-        # remaining_gems = self.find_gems()
         evaluated_gems = self.evaluate_gems(self.gems_list)
         evaluated_gems.sort(key=attrgetter("evaluation_result"), reverse=True)
         for gem in evaluated_gems:
@@ -69,7 +68,8 @@ class Agent(BaseAgent):
                 continue
         if not len(evaluated_gems) == 0:
             return evaluated_gems
-        return self.agent
+
+        return []
 
     def find_gems(self) -> list:
         gems_list = []
@@ -91,22 +91,12 @@ class Agent(BaseAgent):
         agent_location = (self.agent.x, self.agent.y)
         for goal in goals_list:
             goal_location = (goal.x, goal.y)
-            print(goal.x, goal.y)
             final_path = f.find_path(agent_location, goal_location)
-            print("final")
-            print(final_path)
-            print("agent location")
-            print(agent_location)
             if len(final_path) - 1 < self.max_turn_count - self.turn_count:
-                print("-------------------")
-                print(self.max_turn_count - self.turn_count, len(final_path) - 1)
                 self.convert_path_to_action(final_path)
-                print(self.actions)
                 self.last_goal = goal
-                return
-            else:
                 self.gems_list.pop(self.gems_list.index(goal))
-
+                return
         self.finished = True
 
     def do_turn(self) -> Action:
@@ -114,7 +104,10 @@ class Agent(BaseAgent):
         if not self.finished:
             if len(self.actions) == 0:
                 self.generate_actions()
-            return self.actions.pop(0)
+            if not self.finished:
+                return self.actions.pop(0)
+            else:
+                return Action.NOOP
         else:
             return Action.NOOP
 
