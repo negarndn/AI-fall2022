@@ -27,6 +27,8 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
+        self.doors = []
+        self.door_allowed = False
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
@@ -55,11 +57,15 @@ class FindPath:
         self.open_set.pop(best_way)
         self.final_path = []
         if self.current_node == self.end:
-            temp = self.current_node
-            while temp.previous:
-                self.final_path.append((temp.x, temp.y))
-                temp = temp.previous
-            self.final_path.append((self.start.x, self.start.y))
+            self.create_final_path(self.current_node, self.start)
+
+        if len(self.final_path) == 0:
+            if not self.door_allowed:
+                self.door_allowed = True
+                self.find_path(self.start, self.end)
+                if len(self.final_path) != 0:
+                    pass
+
 
         # open_set = self.clean_open_set(self.open_set, self.current_node)
         # self.closed_set.append(self.current_node)
@@ -88,7 +94,7 @@ class FindPath:
         distance = sqrt(abs(node.x - self.end.x)**2 + abs(node.y - self.end.y)**2)
         return distance
 
-    def can_go(self, node):
+    def can_go(self, node, door_allowed):
         if node.x == self.end.x and node.y == self.end.y:
             return True
         # elif (node in self.closed_set) or (node.type in ['W', '1', '2', '3', '4']):
@@ -101,7 +107,10 @@ class FindPath:
             if node.type.lower() in self.keys:
                 return True
             else:
-                return False
+                if door_allowed:
+                    return True
+                else:
+                    return False
         else:
             return True
 
@@ -187,11 +196,15 @@ class FindPath:
                 self.keys.append(temp.type)
             temp = temp.previous
 
-
-
-
-
-
+    def create_final_path(self, node, start):
+        temp = node
+        while temp.previous:
+            if self.door_allowed:
+                if temp.type in ['R', 'Y', 'G']:
+                    self.doors.append(temp.type)
+            self.final_path.append((temp.x, temp.y))
+            temp = temp.previous
+        self.final_path.append((start.x, start.y))
 
 # if __name__ == '__main__':
 #     grid = [
