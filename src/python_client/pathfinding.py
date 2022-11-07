@@ -27,9 +27,15 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
-        #TODO consider remained score
+
+        # TODO consider remained score
 
     def find_path(self, start, end):
+        self.open_set = []
+        self.closed_set = []
+        self.current_node = None
+        self.final_path = []
+        self.keys = []
         self.start = self.grid[start[0]][start[1]]
         self.end = self.grid[end[0]][end[1]]
         self.open_set.append(self.start)
@@ -74,7 +80,6 @@ class FindPath:
 
                 self.closed_set.append(self.current_node)
 
-
     def update_node(self, node, temp_g):
         node.g = temp_g
         node.h = self.h_score(node)
@@ -86,9 +91,12 @@ class FindPath:
         return distance
 
     def can_go(self, node):
-        if (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R']):
+        if node.x == self.end.x and node.y == self.end.y:
+            return True
+        elif (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R', '1', '2', '3', '4']):
             return False
-
+        # if (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R']):
+        #     return False
         #TODO add door and keys
 
         # elif node.type in ['r', 'y', 'g']:
@@ -98,8 +106,6 @@ class FindPath:
         #     return self.check_door(node)
         else:
             return True
-
-
 
     def find_neighbors(self, node):
         x = node.x
@@ -177,9 +183,9 @@ class FindPath:
 
 # if __name__ == '__main__':
 #     grid = [
-#         ['EA', 'E', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['E', '1', '2', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
-#         ['E', 'E', '3', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
+#         ['EA', '1', 'W', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
+#         ['1', '*', 'W', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
+#         ['W', 'W', 'W', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
 #         ['E', 'E', 'E', 'E', 'r', 'E', 'E', 'E', 'E', 'R', 'R', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E'],
 #         ['E', 'E', 'E', 'E', '3', 'E', 'E', 'Y', 'Y', 'E', 'E', '2', 'E', 'y', 'E', 'E', 'E', 'E', 'E', 'E'],
 #         ['E', 'E', 'E', '*', 'E', 'E', '2', 'E', '1', '1', '1', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
@@ -197,5 +203,5 @@ class FindPath:
 #
 #     f = FindPath(grid, height, width)
 #     # f.show_grid()
-#     f.find_path((0, 0), (2, 3))
+#     f.find_path((0, 0), (0, 1))
 
