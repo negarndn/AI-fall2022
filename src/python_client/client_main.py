@@ -55,7 +55,10 @@ class Agent(BaseAgent):
         for gem in remaining_gems:
             euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
             gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
-            gem.evaluation_result = gem_seq_score - (self.walls_count * euclidean_distance)
+            if self.walls_count > 0:
+                gem.evaluation_result = gem_seq_score - (self.walls_count * euclidean_distance)
+            else:
+                gem.evaluation_result = gem_seq_score - euclidean_distance
             # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
             evaluated_gems.append(gem)
         return evaluated_gems
