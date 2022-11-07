@@ -53,6 +53,8 @@ class FindPath:
                 best_way = i
 
         self.current_node = self.open_set[best_way]
+        self.find_keys(self.current_node)
+
         self.open_set.pop(best_way)
         self.final_path = []
         if self.current_node == self.end:
@@ -70,7 +72,6 @@ class FindPath:
             if self.can_go(neighbor):
                 temp_g = self.current_node.g + self.g_score(neighbor)
 
-                control_flag = 0
                 if neighbor in self.open_set:
                     if temp_g < neighbor.g:
                         self.update_node(neighbor, temp_g)
@@ -93,17 +94,17 @@ class FindPath:
     def can_go(self, node):
         if node.x == self.end.x and node.y == self.end.y:
             return True
-        elif (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R', '1', '2', '3', '4']):
-            return False
-        # if (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R']):
+        # elif (node in self.closed_set) or (node.type in ['W', '1', '2', '3', '4']):
         #     return False
+        if (node in self.closed_set) or (node.type == 'W'):
+            return False
         #TODO add door and keys
 
-        # elif node.type in ['r', 'y', 'g']:
-        #     self.keys.append(node.type)
-        #     return True
-        # elif node.type in ['R', 'Y', 'G']:
-        #     return self.check_door(node)
+        elif node.type in ['R', 'Y', 'G']:
+            if node.type.lower() in self.keys:
+                return True
+            else:
+                return False
         else:
             return True
 
@@ -180,6 +181,20 @@ class FindPath:
                 return False
         else:
             return False
+
+    def find_keys(self, current_node):
+        self.keys = []
+        temp = current_node
+        while temp.previous:
+            if temp.type in ['r', 'g', 'y']:
+                self.keys.append(temp.type)
+            temp = temp.previous
+
+
+
+
+
+
 
 # if __name__ == '__main__':
 #     grid = [
