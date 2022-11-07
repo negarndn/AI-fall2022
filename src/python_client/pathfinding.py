@@ -27,9 +27,6 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
-
-        # TODO consider remained score
-
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
@@ -96,9 +93,9 @@ class FindPath:
             return True
         # elif (node in self.closed_set) or (node.type in ['W', '1', '2', '3', '4']):
         #     return False
+
         if (node in self.closed_set) or (node.type == 'W'):
             return False
-        #TODO add door and keys
 
         elif node.type in ['R', 'Y', 'G']:
             if node.type.lower() in self.keys:
