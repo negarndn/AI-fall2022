@@ -91,12 +91,12 @@ class FindPath:
         return distance
 
     def can_go(self, node):
-        if node.x == self.end.x and node.y == self.end.y:
-            return True
-        elif (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R', '1', '2', '3', '4']):
-            return False
-        # if (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R']):
+        # if node.x == self.end.x and node.y == self.end.y:
+        #     return True
+        # elif (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R', '1', '2', '3', '4']):
         #     return False
+        if (node in self.closed_set) or (node.type in ['W', 'G', 'Y', 'R']):
+            return False
         #TODO add door and keys
 
         # elif node.type in ['r', 'y', 'g']:
