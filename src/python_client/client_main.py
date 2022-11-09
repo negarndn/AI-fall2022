@@ -1,6 +1,6 @@
 from base import BaseAgent, Action
 from pathfinding import FindPath, Node
-from gem import Gem, GEM_SCORES
+from gem import Gem
 from operator import attrgetter
 from math import sqrt
 from coloring import Coloring
@@ -62,19 +62,11 @@ class Agent(BaseAgent):
                 euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
                 gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
                 if self.walls_count > 0:
-                    gem.evaluation_result = gem_seq_score - (self.walls_count * euclidean_distance)
+                    gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
                 else:
                     gem.evaluation_result = gem_seq_score - euclidean_distance
                 # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
                 evaluated_gems.append(gem)
-            euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
-            gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
-            if self.walls_count > 0:
-                gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
-            else:
-                gem.evaluation_result = gem_seq_score - euclidean_distance
-            # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
-            evaluated_gems.append(gem)
         return evaluated_gems
 
     def choose_goal(self) -> list:
@@ -137,14 +129,13 @@ class Agent(BaseAgent):
         self.finished = True
 
     def do_turn(self) -> Action:
+        print(f"turn count: {self.turn_count}")
         if self.turn_count == 1:
             self.count_wall_density()
 
             self.coloring = Coloring(self.grid, self.grid_height, self.grid_width)
             self.coloring.bfs(0, 0)
-            for node in self.coloring.available_cells:
-                print(node.x, node.y, node.type)
-        print(f"turn count: {self.turn_count}")
+
         if not self.finished:
             print(f"self.finished is: {self.finished}")
             if len(self.actions) == 0:
@@ -154,10 +145,10 @@ class Agent(BaseAgent):
                 print(f"action pop: {self.actions[0]}")
                 return self.actions.pop(0)
             else:
-                print("no op called in else aval")
+                print("NOOP 1")
                 return Action.NOOP
         else:
-            print("no op called in else dovom")
+            print("NOOP 2")
             return Action.NOOP
 
 

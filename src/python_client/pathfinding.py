@@ -27,6 +27,7 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
+
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
