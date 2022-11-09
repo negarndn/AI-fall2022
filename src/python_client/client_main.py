@@ -25,6 +25,9 @@ class Agent(BaseAgent):
         self.gems_list = []
         self.finished = False
         self.walls_count = 0
+        self.wall_density = 0
+        self.gems_count = 0
+        self.gem_density = 0
         self.coloring = None
 
     def convert_path_to_action(self, final_path):
@@ -87,13 +90,15 @@ class Agent(BaseAgent):
                     gem.type = self.grid[x][y]
                     # gem.score = GEM_SCORES[self.grid[x][y]]
                     gems_list.append(gem)
+        self.gem_density = len(gems_list)
         return gems_list
 
-    def wall_count(self):
+    def wall_density(self):
         for x in range(self.grid_height):
             for y in range(self.grid_width):
                 if self.grid[x][y] == "W":
                     self.walls_count += 1
+        self.wall_density = self.walls_count / (self.grid_width * self.grid_height)
 
     def generate_actions(self):
         self.gems_list = self.find_gems()
