@@ -67,6 +67,14 @@ class Agent(BaseAgent):
                     gem.evaluation_result = gem_seq_score - euclidean_distance
                 # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
                 evaluated_gems.append(gem)
+            euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
+            gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
+            if self.walls_count > 0:
+                gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
+            else:
+                gem.evaluation_result = gem_seq_score - euclidean_distance
+            # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
+            evaluated_gems.append(gem)
         return evaluated_gems
 
     def choose_goal(self) -> list:
@@ -93,7 +101,7 @@ class Agent(BaseAgent):
         self.gem_density = len(gems_list)
         return gems_list
 
-    def wall_density(self):
+    def count_wall_density(self):
         for x in range(self.grid_height):
             for y in range(self.grid_width):
                 if self.grid[x][y] == "W":
@@ -130,14 +138,13 @@ class Agent(BaseAgent):
 
     def do_turn(self) -> Action:
         if self.turn_count == 1:
-            self.wall_count()
+            self.count_wall_density()
 
             self.coloring = Coloring(self.grid, self.grid_height, self.grid_width)
             self.coloring.bfs(0, 0)
             for node in self.coloring.available_cells:
                 print(node.x, node.y, node.type)
         print(f"turn count: {self.turn_count}")
-
         if not self.finished:
             print(f"self.finished is: {self.finished}")
             if len(self.actions) == 0:
