@@ -1,8 +1,9 @@
 from base import BaseAgent, Action
 from pathfinding import FindPath, Node
-from gem import Gem, GEM_SCORES
+from gem import Gem
 from operator import attrgetter
 from math import sqrt
+from coloring import Coloring
 
 GEM_SEQUENCE_SCORE = [
     [50,   0,   0, 0],
@@ -27,6 +28,7 @@ class Agent(BaseAgent):
         self.wall_density = 0
         self.gems_count = 0
         self.gem_density = 0
+        self.coloring = None
 
     def convert_path_to_action(self, final_path):
         for i in range(len(final_path) - 1):
@@ -56,14 +58,15 @@ class Agent(BaseAgent):
     def evaluate_gems(self, remaining_gems) -> list:
         evaluated_gems = []
         for gem in remaining_gems:
-            euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
-            gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
-            if self.walls_count > 0:
-                gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
-            else:
-                gem.evaluation_result = gem_seq_score - euclidean_distance
-            # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
-            evaluated_gems.append(gem)
+            if self.coloring.contains(gem):
+                euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
+                gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
+                if self.walls_count > 0:
+                    gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
+                else:
+                    gem.evaluation_result = gem_seq_score - euclidean_distance
+                # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
+                evaluated_gems.append(gem)
         return evaluated_gems
 
     def choose_goal(self) -> list:
@@ -71,7 +74,7 @@ class Agent(BaseAgent):
         evaluated_gems.sort(key=attrgetter("evaluation_result"), reverse=True)
         for gem in evaluated_gems:
             manhattan_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
-            if self.max_turn_count - self.turn_count < manhattan_distance:
+            if self.max_turn_count - self.turn_count + 1 <= manhattan_distance:
                 evaluated_gems.pop(evaluated_gems.index(gem))
                 continue
         if not len(evaluated_gems) == 0:
@@ -98,6 +101,7 @@ class Agent(BaseAgent):
         self.wall_density = self.walls_count / (self.grid_width * self.grid_height)
 
     def generate_actions(self):
+        self.gems_list = self.find_gems()
         self.agent = self.last_goal
         print(f"las goal -> {self.last_goal.x, self.last_goal.y}")
         if not self.last_goal.type == '':
@@ -116,7 +120,7 @@ class Agent(BaseAgent):
             final_path = f.find_path(agent_location, goal_location)
             print(f"final -> {final_path}")
             print(f"agent location: {agent_location}")
-            if len(final_path) - 1 < self.max_turn_count - self.turn_count and not len(final_path) == 0:
+            if len(final_path) - 1 <= self.max_turn_count - self.turn_count + 1 and not len(final_path) == 0:
                 print(f"self.max_turn_count - self.turn_count, len(final_path) - 1 -> {self.max_turn_count - self.turn_count, len(final_path) - 1}")
                 self.convert_path_to_action(final_path)
                 self.last_goal = goal
@@ -125,9 +129,13 @@ class Agent(BaseAgent):
         self.finished = True
 
     def do_turn(self) -> Action:
-        self.gems_list = self.find_gems()
-        self.count_wall_density()
         print(f"turn count: {self.turn_count}")
+        if self.turn_count == 1:
+            self.count_wall_density()
+
+            self.coloring = Coloring(self.grid, self.grid_height, self.grid_width)
+            self.coloring.bfs(0, 0)
+
         if not self.finished:
             print(f"self.finished is: {self.finished}")
             if len(self.actions) == 0:
@@ -137,10 +145,10 @@ class Agent(BaseAgent):
                 print(f"action pop: {self.actions[0]}")
                 return self.actions.pop(0)
             else:
-                print("no op called in else aval")
+                print("NOOP 1")
                 return Action.NOOP
         else:
-            print("no op called in else dovom")
+            print("NOOP 2")
             return Action.NOOP
 
 

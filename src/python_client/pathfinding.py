@@ -27,6 +27,7 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
+
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
@@ -186,12 +187,6 @@ class FindPath:
             if temp.type in ['r', 'g', 'y']:
                 self.keys.append(temp.type)
             temp = temp.previous
-
-
-
-
-
-
 
 # if __name__ == '__main__':
 #     grid = [
