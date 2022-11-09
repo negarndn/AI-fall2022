@@ -4,6 +4,8 @@ from gem import Gem
 from operator import attrgetter
 from math import sqrt
 from coloring import Coloring
+from itertools import permutations
+from permutation import Permutation
 
 GEM_SEQUENCE_SCORE = [
     [50,   0,   0, 0],
@@ -55,31 +57,39 @@ class Agent(BaseAgent):
                     self.actions.append(Action.UP_LEFT)
         self.actions.reverse()
 
-    def evaluate_gems(self, remaining_gems) -> list:
-        evaluated_gems = []
-        for gem in remaining_gems:
-            if self.coloring.contains(gem):
-                euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
-                gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
+    def evaluate_permutation(self, perms) -> list:
+        evaluated_permutations = []
+        for seq in perms:
+            permutation = Permutation()
+            permutation.sequence_tuple = seq
+            evaluation_result = 0
+            current_agent_loc = self.agent
+            last_goal_type = self.last_gem
+            manhattan_distance = 0
+            is_reachable = True
+            for gem in seq:
+                euclidean_distance = sqrt((current_agent_loc.x - gem.x) ** 2 + (current_agent_loc.y - gem.y) ** 2)
+                manhattan_distance += abs(current_agent_loc.x - gem.x) + abs(current_agent_loc.y - gem.y)
+                if self.max_turn_count - self.turn_count + 1 < manhattan_distance:
+                    is_reachable = False
+                    break
+                gem_seq_score = GEM_SEQUENCE_SCORE[last_goal_type][int(gem.type)-1]
                 if self.walls_count > 0:
-                    gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
+                    evaluation_result += gem_seq_score - (euclidean_distance / self.wall_density)
                 else:
-                    gem.evaluation_result = gem_seq_score - euclidean_distance
-                # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
-                evaluated_gems.append(gem)
-        return evaluated_gems
+                    evaluation_result += gem_seq_score - euclidean_distance
+                current_agent_loc = gem
+                last_goal_type = int(gem.type)
+            if is_reachable:
+                permutation.evaluation_result = evaluation_result
+                evaluated_permutations.append(permutation)
 
-    def choose_goal(self) -> list:
-        evaluated_gems = self.evaluate_gems(self.gems_list)
-        evaluated_gems.sort(key=attrgetter("evaluation_result"), reverse=True)
-        for gem in evaluated_gems:
-            manhattan_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
-            if self.max_turn_count - self.turn_count + 1 <= manhattan_distance:
-                evaluated_gems.pop(evaluated_gems.index(gem))
-                continue
-        if not len(evaluated_gems) == 0:
-            return evaluated_gems
-        return []
+        return evaluated_permutations
+
+    def choose_goals_sequence(self, perms) -> list:
+        evaluated_permutations = self.evaluate_permutation(perms)
+        evaluated_permutations.sort(key=attrgetter("evaluation_result"), reverse=True)
+        return evaluated_permutations
 
     def find_gems(self) -> list:
         gems_list = []
@@ -100,32 +110,42 @@ class Agent(BaseAgent):
                     self.walls_count += 1
         self.wall_density = self.walls_count / (self.grid_width * self.grid_height)
 
+    def find_permutations(self):
+        return permutations(self.gems_list, 2)
+
     def generate_actions(self):
+        f = FindPath(self.grid, self.grid_height, self.grid_width)
         self.gems_list = self.find_gems()
+        perms = self.find_permutations()
         self.agent = self.last_goal
-        print(f"las goal -> {self.last_goal.x, self.last_goal.y}")
+
+        print(f"last goal -> {self.last_goal.x, self.last_goal.y}")
+
         if not self.last_goal.type == '':
             self.last_gem = int(self.last_goal.type)
             print(f"last gem: {self.last_gem}")
-        f = FindPath(self.grid, self.grid_height, self.grid_width)
-        goals_list = self.choose_goal()
-        for goal in goals_list:
-            print(f"x: {goal.x} y: {goal.y} type: {goal.type}")
-        agent_location = (self.agent.x, self.agent.y)
-        for goal in goals_list:
-            goal_location = (goal.x, goal.y)
-            print("------------------------------------------")
-            print(f"goal location: {goal_location}")
-            print(f"evaluation result -> {goal.evaluation_result}")
-            final_path = f.find_path(agent_location, goal_location)
-            print(f"final -> {final_path}")
-            print(f"agent location: {agent_location}")
-            if len(final_path) - 1 <= self.max_turn_count - self.turn_count + 1 and not len(final_path) == 0:
-                print(f"self.max_turn_count - self.turn_count, len(final_path) - 1 -> {self.max_turn_count - self.turn_count, len(final_path) - 1}")
+
+        permutations_list = self.choose_goals_sequence(perms)
+        for perm in permutations_list:
+            agent_location = (self.agent.x, self.agent.y)
+            final_path = []
+            is_reachable = True
+            for goal in perm.sequence_tuple:
+                goal_location = (goal.x, goal.y)
+                path = f.find_path(agent_location, goal_location)
+                path.reverse()
+                for tup in path:
+                    final_path.append(tup)
+                if len(final_path) - 1 > self.max_turn_count - self.turn_count + 1 and not len(final_path) == 0:
+                    is_reachable = False
+                    break
+                agent_location = (goal.x, goal.y)
+            if is_reachable:
+                final_path.reverse()
                 self.convert_path_to_action(final_path)
-                self.last_goal = goal
-                print("------------------------------------------")
+                self.last_goal = perm.sequence_tuple[-1]
                 return
+
         self.finished = True
 
     def do_turn(self) -> Action:
