@@ -124,19 +124,27 @@ class Agent(BaseAgent):
         if not self.last_goal.type == '':
             self.last_gem = int(self.last_goal.type)
             print(f"last gem: {self.last_gem}")
-
+        print("injaaa-----------------------------------------------")
         permutations_list = self.choose_goals_sequence(perms)
+        for perm in permutations_list:
+            print(f"perm -> {perm.sequence_tuple}, {perm.evaluation_result}")
+        print("onja---------------------------------------")
         for perm in permutations_list:
             agent_location = (self.agent.x, self.agent.y)
             final_path = []
             is_reachable = True
             for goal in perm.sequence_tuple:
                 goal_location = (goal.x, goal.y)
+                print(f"goal_location {goal_location}")
+                print(f"agent location {agent_location}")
                 path = f.find_path(agent_location, goal_location)
+                print(f"path: {path}")
                 path.reverse()
                 for tup in path:
                     final_path.append(tup)
+                print(f"final_path: {final_path}")
                 if len(final_path) - 1 > self.max_turn_count - self.turn_count + 1 and not len(final_path) == 0:
+                    print("is reachable false")
                     is_reachable = False
                     break
                 agent_location = (goal.x, goal.y)
