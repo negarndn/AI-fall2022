@@ -60,6 +60,7 @@ class Agent(BaseAgent):
         for gem in remaining_gems:
             if self.coloring.contains(gem):
                 euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
+                # euclidean_distance *= 20
                 gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
                 if self.walls_count > 0:
                     gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
