@@ -65,7 +65,6 @@ class Agent(BaseAgent):
                     gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
                 else:
                     gem.evaluation_result = gem_seq_score - euclidean_distance
-                # gem.evaluation_result = gem.score + gem_seq_score - euclidean_distance
                 evaluated_gems.append(gem)
         return evaluated_gems
 
@@ -88,7 +87,6 @@ class Agent(BaseAgent):
                 if self.grid[x][y] in ['1', '2', '3', '4']:
                     gem = Gem(x, y)
                     gem.type = self.grid[x][y]
-                    # gem.score = GEM_SCORES[self.grid[x][y]]
                     gems_list.append(gem)
         self.gem_density = len(gems_list)
         return gems_list
@@ -103,33 +101,21 @@ class Agent(BaseAgent):
     def generate_actions(self):
         self.gems_list = self.find_gems()
         self.agent = self.last_goal
-        print(f"las goal -> {self.last_goal.x, self.last_goal.y}")
         if not self.last_goal.type == '':
             self.last_gem = int(self.last_goal.type)
-            print(f"last gem: {self.last_gem}")
         f = FindPath(self.grid, self.grid_height, self.grid_width)
         goals_list = self.choose_goal()
-        for goal in goals_list:
-            print(f"x: {goal.x} y: {goal.y} type: {goal.type}")
         agent_location = (self.agent.x, self.agent.y)
         for goal in goals_list:
             goal_location = (goal.x, goal.y)
-            print("------------------------------------------")
-            print(f"goal location: {goal_location}")
-            print(f"evaluation result -> {goal.evaluation_result}")
             final_path = f.find_path(agent_location, goal_location)
-            print(f"final -> {final_path}")
-            print(f"agent location: {agent_location}")
             if len(final_path) - 1 <= self.max_turn_count - self.turn_count + 1 and not len(final_path) == 0:
-                print(f"self.max_turn_count - self.turn_count, len(final_path) - 1 -> {self.max_turn_count - self.turn_count, len(final_path) - 1}")
                 self.convert_path_to_action(final_path)
                 self.last_goal = goal
-                print("------------------------------------------")
                 return
         self.finished = True
 
     def do_turn(self) -> Action:
-        print(f"turn count: {self.turn_count}")
         if self.turn_count == 1:
             self.count_wall_density()
 
@@ -137,18 +123,13 @@ class Agent(BaseAgent):
             self.coloring.bfs(0, 0)
 
         if not self.finished:
-            print(f"self.finished is: {self.finished}")
             if len(self.actions) == 0:
-                print(f"generate actions call, turn: {self.turn_count}")
                 self.generate_actions()
             if not self.finished:
-                print(f"action pop: {self.actions[0]}")
                 return self.actions.pop(0)
             else:
-                print("NOOP 1")
                 return Action.NOOP
         else:
-            print("NOOP 2")
             return Action.NOOP
 
 
