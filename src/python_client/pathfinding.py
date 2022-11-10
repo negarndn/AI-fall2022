@@ -165,7 +165,7 @@ class FindPath:
             return 20
 
         elif node.type in ['r', 'y', 'g'] and node.type not in self.keys:
-            return -1
+            return -2
         elif abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
             return 2
         else:
