@@ -2,7 +2,6 @@ from base import BaseAgent, Action
 from pathfinding import FindPath, Node
 from gem import Gem
 from operator import attrgetter
-from math import sqrt
 from coloring import Coloring
 from itertools import permutations
 from permutation import Permutation
@@ -68,16 +67,13 @@ class Agent(BaseAgent):
             manhattan_distance = 0
             is_reachable = True
             for gem in seq:
-                euclidean_distance = sqrt((current_agent_loc.x - gem.x) ** 2 + (current_agent_loc.y - gem.y) ** 2)
+                diagonal_distance = abs(current_agent_loc.x - gem.x) + abs(current_agent_loc.y - gem.y)
                 manhattan_distance += abs(current_agent_loc.x - gem.x) + abs(current_agent_loc.y - gem.y)
                 if self.max_turn_count - self.turn_count + 1 < manhattan_distance:
                     is_reachable = False
                     break
                 gem_seq_score = GEM_SEQUENCE_SCORE[last_goal_type][int(gem.type)-1]
-                if self.walls_count > 0:
-                    evaluation_result += gem_seq_score - (euclidean_distance / self.wall_density)
-                else:
-                    evaluation_result += gem_seq_score - euclidean_distance
+                evaluation_result += gem_seq_score - (diagonal_distance * ((self.grid_height * self.grid_width) / self.max_turn_count))
                 current_agent_loc = gem
                 last_goal_type = int(gem.type)
             if is_reachable:
@@ -98,7 +94,6 @@ class Agent(BaseAgent):
                 if self.grid[x][y] in ['1', '2', '3', '4']:
                     gem = Gem(x, y)
                     gem.type = self.grid[x][y]
-                    # gem.score = GEM_SCORES[self.grid[x][y]]
                     gems_list.append(gem)
         self.gem_density = len(gems_list)
         return gems_list
@@ -111,43 +106,58 @@ class Agent(BaseAgent):
         self.wall_density = self.walls_count / (self.grid_width * self.grid_height)
 
     def find_permutations(self):
-        return permutations(self.gems_list, 2)
+        if len(self.gems_list) >= 2:
+            return permutations(self.gems_list, 2)
+        else:
+            return permutations(self.gems_list, len(self.gems_list))
 
     def generate_actions(self):
-        f = FindPath(self.grid, self.grid_height, self.grid_width)
+        # f = FindPath(self.grid, self.grid_height, self.grid_width)
         self.gems_list = self.find_gems()
-        perms = self.find_permutations()
-        self.agent = self.last_goal
+        temp_gems_list = []
+        for gem in self.gems_list:
+            if self.coloring.contains(gem):
+                temp_gems_list.append(gem)
 
-        print(f"last goal -> {self.last_goal.x, self.last_goal.y}")
+        self.gems_list = temp_gems_list
+
+        perms = list(self.find_permutations())
+        print(len(perms))
+        if len(perms[0]) == 0:
+            self.finished = True
+            return
+
+        self.agent = self.last_goal
 
         if not self.last_goal.type == '':
             self.last_gem = int(self.last_goal.type)
-            print(f"last gem: {self.last_gem}")
-        print("injaaa-----------------------------------------------")
         permutations_list = self.choose_goals_sequence(perms)
-        for perm in permutations_list:
-            print(f"perm -> {perm.sequence_tuple}, {perm.evaluation_result}")
-        print("onja---------------------------------------")
+
         for perm in permutations_list:
             agent_location = (self.agent.x, self.agent.y)
             final_path = []
             is_reachable = True
             for goal in perm.sequence_tuple:
+                f = FindPath(self.grid, self.grid_height, self.grid_width)
                 goal_location = (goal.x, goal.y)
                 print(f"goal_location {goal_location}")
                 print(f"agent location {agent_location}")
                 path = f.find_path(agent_location, goal_location)
                 print(f"path: {path}")
-                path.reverse()
-                for tup in path:
-                    final_path.append(tup)
-                print(f"final_path: {final_path}")
-                if len(final_path) - 1 > self.max_turn_count - self.turn_count + 1 and not len(final_path) == 0:
-                    print("is reachable false")
+                if not len(path) == 0:
+                    path.reverse()
+                    if not len(final_path) == 0:
+                        final_path.pop()
+                    for tup in path:
+                        final_path.append(tup)
+                    print(f"final_path: {final_path}")
+                    if len(final_path) - 1 > self.max_turn_count - self.turn_count + 1:
+                        print("is reachable false")
+                        is_reachable = False
+                        break
+                    agent_location = (goal.x, goal.y)
+                else:
                     is_reachable = False
-                    break
-                agent_location = (goal.x, goal.y)
             if is_reachable:
                 final_path.reverse()
                 self.convert_path_to_action(final_path)
@@ -157,7 +167,6 @@ class Agent(BaseAgent):
         self.finished = True
 
     def do_turn(self) -> Action:
-        print(f"turn count: {self.turn_count}")
         if self.turn_count == 1:
             self.count_wall_density()
 
@@ -165,18 +174,13 @@ class Agent(BaseAgent):
             self.coloring.bfs(0, 0)
 
         if not self.finished:
-            print(f"self.finished is: {self.finished}")
             if len(self.actions) == 0:
-                print(f"generate actions call, turn: {self.turn_count}")
                 self.generate_actions()
             if not self.finished:
-                print(f"action pop: {self.actions[0]}")
                 return self.actions.pop(0)
             else:
-                print("NOOP 1")
                 return Action.NOOP
         else:
-            print("NOOP 2")
             return Action.NOOP
 
 

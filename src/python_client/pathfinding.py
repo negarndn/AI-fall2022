@@ -28,6 +28,7 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
+
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
@@ -35,8 +36,8 @@ class FindPath:
         self.start = self.grid[start[0]][start[1]]
         self.end = self.grid[end[0]][end[1]]
         global final_keys
-        print(f'start: {(self.start.x, self.start.y)} end: {(self.end.x, self.end.y)}')
-        print(f'final keys: {final_keys}')
+        # print(f'start: {(self.start.x, self.start.y)} end: {(self.end.x, self.end.y)}')
+        # print(f'final keys: {final_keys}')
         self.open_set.append(self.start)
         while len(self.open_set) > 0:
             self.a_star()
@@ -60,7 +61,7 @@ class FindPath:
             self.find_keys(self.current_node)
             global final_keys
             final_keys = [key for key in self.keys]
-            print(f'created final keys: {final_keys}')
+            # print(f'created final keys: {final_keys}')
             temp = self.current_node
             while temp.previous:
                 self.final_path.append((temp.x, temp.y))
@@ -83,7 +84,6 @@ class FindPath:
                     self.open_set.append(neighbor)
 
                 self.closed_set.append(self.current_node)
-
 
     def update_node(self, node, temp_g):
         node.g = temp_g
@@ -181,12 +181,6 @@ class FindPath:
             if temp.type in ['r', 'g', 'y']:
                 self.keys.append(temp.type)
             temp = temp.previous
-
-
-
-
-
-
 
 
 # if __name__ == '__main__':
