@@ -1,6 +1,7 @@
 from math import sqrt
 
 
+final_keys = []
 class Node:
     def __init__(self, x, y):
         self.x = x
@@ -27,15 +28,15 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
-
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
-        self.current_node = None
         self.final_path = []
-        self.keys = []
         self.start = self.grid[start[0]][start[1]]
         self.end = self.grid[end[0]][end[1]]
+        global final_keys
+        print(f'start: {(self.start.x, self.start.y)} end: {(self.end.x, self.end.y)}')
+        print(f'final keys: {final_keys}')
         self.open_set.append(self.start)
         while len(self.open_set) > 0:
             self.a_star()
@@ -56,6 +57,10 @@ class FindPath:
         self.open_set.pop(best_way)
         self.final_path = []
         if self.current_node == self.end:
+            self.find_keys(self.current_node)
+            global final_keys
+            final_keys = [key for key in self.keys]
+            print(f'created final keys: {final_keys}')
             temp = self.current_node
             while temp.previous:
                 self.final_path.append((temp.x, temp.y))
@@ -79,6 +84,7 @@ class FindPath:
 
                 self.closed_set.append(self.current_node)
 
+
     def update_node(self, node, temp_g):
         node.g = temp_g
         node.h = self.h_score(node)
@@ -99,6 +105,8 @@ class FindPath:
             return False
 
         elif node.type in ['R', 'Y', 'G']:
+            # self.find_keys(node)
+            print(f'keys: {self.keys} for {node.type}')
             if node.type.lower() in self.keys:
                 return True
             else:
@@ -155,38 +163,31 @@ class FindPath:
     def g_score(self, node):
         if node.type == "*":
             return 20
+
+        elif node.type in ['r', 'y', 'g'] and node.type not in self.keys:
+            return -1
         elif abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
             return 2
         else:
             return 1
 
-    def check_door(self, node):
-        print(self.keys)
-        if node.type == "R":
-            if "r" in self.keys:
-                return True
-            else:
-                return False
-        elif node.type == "Y":
-            if "y" in self.keys:
-                return True
-            else:
-                return False
-        elif node.type == "G":
-            if "g" in self.keys:
-                return True
-            else:
-                return False
-        else:
-            return False
-
     def find_keys(self, current_node):
         self.keys = []
+        global final_keys
+        for key in final_keys:
+            self.keys.append(key)
         temp = current_node
         while temp.previous:
             if temp.type in ['r', 'g', 'y']:
                 self.keys.append(temp.type)
             temp = temp.previous
+
+
+
+
+
+
+
 
 # if __name__ == '__main__':
 #     grid = [
