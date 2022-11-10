@@ -1,3 +1,5 @@
+import math
+
 from base import BaseAgent, Action
 from pathfinding import FindPath, Node
 from gem import Gem
@@ -72,11 +74,33 @@ class Agent(BaseAgent):
     def choose_goal(self) -> list:
         evaluated_gems = self.evaluate_gems(self.gems_list)
         evaluated_gems.sort(key=attrgetter("evaluation_result"), reverse=True)
-        for gem in evaluated_gems:
-            manhattan_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
-            if self.max_turn_count - self.turn_count + 1 <= manhattan_distance:
-                evaluated_gems.pop(evaluated_gems.index(gem))
-                continue
+        five_best_gems_list = evaluated_gems[:5]
+        print('*************************************************************************************')
+        for gem in five_best_gems_list:
+            print(gem.x, gem.y)
+        print('*************************************************************************************')
+        evaluated_gems = evaluated_gems[5:]
+        f2 = FindPath(self.grid, self.grid_height, self.grid_width)
+        min_des = math.inf
+        for gem in five_best_gems_list:
+            path = f2.find_path((self.agent.x, self.agent.y),(gem.x, gem.y))
+            if len(path) == 0:
+                five_best_gems_list.pop(five_best_gems_list.index(gem))
+            else:
+                path_len = len(path) - 1
+                if path_len < min_des:
+                    min_des = path_len
+                    best_gem = gem
+        if len(five_best_gems_list) == 0:
+            self.choose_goal()
+
+        evaluated_gems = five_best_gems_list + evaluated_gems
+
+            # manhattan_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
+            # if self.max_turn_count - self.turn_count + 1 <= manhattan_distance:
+            #     evaluated_gems.pop(evaluated_gems.index(gem))
+            #     continue
+
         if not len(evaluated_gems) == 0:
             return evaluated_gems
         return []
