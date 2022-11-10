@@ -59,12 +59,12 @@ class Agent(BaseAgent):
         evaluated_gems = []
         for gem in remaining_gems:
             if self.coloring.contains(gem):
-                euclidean_distance = sqrt((self.agent.x - gem.x) ** 2 + (self.agent.y - gem.y) ** 2)
+                diagonal_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
                 gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
-                if self.walls_count > 0:
-                    gem.evaluation_result = gem_seq_score - (euclidean_distance / self.wall_density)
-                else:
-                    gem.evaluation_result = gem_seq_score - euclidean_distance
+                # if self.walls_count > 0:
+                gem.evaluation_result = gem_seq_score - (diagonal_distance * ((self.grid_height * self.grid_width) / self.max_turn_count))
+                # else:
+                #     gem.evaluation_result = gem_seq_score - euclidean_distance
                 evaluated_gems.append(gem)
         return evaluated_gems
 
