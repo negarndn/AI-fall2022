@@ -101,7 +101,7 @@ class FindPath:
         # elif (node in self.closed_set) or (node.type in ['W', '1', '2', '3', '4']):
         #     return False
 
-        if (node in self.closed_set) or (node.type == 'W'):
+        if (node in self.closed_set) or (node.type == 'W') or (node.type in ['1', '2', '3', '4']):
             return False
 
         elif node.type in ['R', 'Y', 'G']:
