@@ -1,6 +1,9 @@
 # outs file
 src/server/outs.txt
 
+src/server/outs.txt
+src/server/config.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
