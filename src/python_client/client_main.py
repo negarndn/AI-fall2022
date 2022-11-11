@@ -3,6 +3,8 @@ from pathfinding import FindPath, Node
 from gem import Gem
 from operator import attrgetter
 from coloring import Coloring
+from choose_goals_sequence import ChooseGoalsSequence
+from calculate_diagonal_distance import calculate_diagonal_distance
 
 GEM_SEQUENCE_SCORE = [
     [50,   0,   0, 0],
@@ -11,12 +13,6 @@ GEM_SEQUENCE_SCORE = [
     [50, 100, 50,  200],
     [250, 50, 100, 50]
 ]
-
-
-def calculate_diagonal_distance(source, destination):
-    dx = abs(source.x - destination.x)
-    dy = abs(source.y - destination.y)
-    return 2 * min(dx, dy) + (max(dx, dy) - min(dx, dy))
 
 
 class Agent(BaseAgent):
@@ -94,14 +90,22 @@ class Agent(BaseAgent):
         longest_distance = 0
         for gem_s in gems_list:
             for gem_d in gems_list:
-                distance = calculate_diagonal_distance(gem_s, gem_d)
-                if distance > longest_distance:
-                    longest_distance = distance
+                if self.coloring.contains(gem_s) and self.coloring.contains(gem_d):
+                    distance = calculate_diagonal_distance(gem_s, gem_d)
+                    if distance > longest_distance:
+                        longest_distance = distance
         self.gems_dispersion_coefficient = longest_distance
-
 
     def generate_actions(self):
         self.gems_list = self.find_gems()
+        if self.last_gem == 0:
+            cgs = ChooseGoalsSequence(self.gems_list, self.coloring, self.grid, self.grid_height, self.grid_width, self.last_goal, self.last_gem, self.agent, self.max_turn_count, self.turn_count, self.gems_dispersion_coefficient)
+            fp, lg = cgs.generate_actions()
+            self.last_goal = lg
+            self.last_gem = int(self.last_goal.type)
+            self.convert_path_to_action(fp)
+            return
+
         self.agent = self.last_goal
         if not self.last_goal.type == '':
             self.last_gem = int(self.last_goal.type)
@@ -119,9 +123,9 @@ class Agent(BaseAgent):
 
     def do_turn(self) -> Action:
         if self.turn_count == 1:
-            self.find_longest_distance_between_gems()
             self.coloring = Coloring(self.grid, self.grid_height, self.grid_width)
             self.coloring.bfs(0, 0)
+            self.find_longest_distance_between_gems()
 
         if not self.finished:
             if len(self.actions) == 0:
