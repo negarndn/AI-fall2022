@@ -13,6 +13,12 @@ GEM_SEQUENCE_SCORE = [
 ]
 
 
+def calculate_diagonal_distance(source, destination):
+    dx = abs(source.x - destination.x)
+    dy = abs(source.y - destination.y)
+    return 2 * min(dx, dy) + (max(dx, dy) - min(dx, dy))
+
+
 class Agent(BaseAgent):
 
     def __init__(self):
@@ -24,6 +30,7 @@ class Agent(BaseAgent):
         self.gems_list = []
         self.finished = False
         self.coloring = None
+        self.gems_dispersion_coefficient = 0
 
     def convert_path_to_action(self, final_path):
         for i in range(len(final_path) - 1):
@@ -54,9 +61,9 @@ class Agent(BaseAgent):
         evaluated_gems = []
         for gem in remaining_gems:
             if self.coloring.contains(gem):
-                diagonal_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
+                diagonal_distance = calculate_diagonal_distance(self.agent, gem)
                 gem_seq_score = GEM_SEQUENCE_SCORE[self.last_gem][int(gem.type)-1]
-                gem.evaluation_result = gem_seq_score - (diagonal_distance * ((self.grid_height * self.grid_width) / self.max_turn_count))
+                gem.evaluation_result = gem_seq_score - (diagonal_distance * ((self.grid_height * self.grid_width) / self.max_turn_count) * self.gems_dispersion_coefficient)
                 evaluated_gems.append(gem)
         return evaluated_gems
 
@@ -82,6 +89,17 @@ class Agent(BaseAgent):
                     gems_list.append(gem)
         return gems_list
 
+    def find_longest_distance_between_gems(self):
+        gems_list = self.find_gems()
+        longest_distance = 0
+        for gem_s in gems_list:
+            for gem_d in gems_list:
+                distance = calculate_diagonal_distance(gem_s, gem_d)
+                if distance > longest_distance:
+                    longest_distance = distance
+        self.gems_dispersion_coefficient = longest_distance
+
+
     def generate_actions(self):
         self.gems_list = self.find_gems()
         self.agent = self.last_goal
@@ -101,6 +119,7 @@ class Agent(BaseAgent):
 
     def do_turn(self) -> Action:
         if self.turn_count == 1:
+            self.find_longest_distance_between_gems()
             self.coloring = Coloring(self.grid, self.grid_height, self.grid_width)
             self.coloring.bfs(0, 0)
 
