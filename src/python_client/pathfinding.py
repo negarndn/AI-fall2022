@@ -60,7 +60,6 @@ class FindPath:
             self.find_keys(self.current_node)
             global final_keys
             final_keys = [key for key in self.keys]
-            print(f'created final keys: {final_keys}')
             temp = self.current_node
             while temp.previous:
                 self.final_path.append((temp.x, temp.y))
@@ -97,6 +96,7 @@ class FindPath:
     def can_go(self, node):
         if node.x == self.end.x and node.y == self.end.y:
             return True
+
         # elif (node in self.closed_set) or (node.type in ['W', '1', '2', '3', '4']):
         #     return False
 
@@ -105,7 +105,6 @@ class FindPath:
 
         elif node.type in ['R', 'Y', 'G']:
             # self.find_keys(node)
-            print(f'keys: {self.keys} for {node.type}')
             if node.type.lower() in self.keys:
                 return True
             else:
@@ -144,25 +143,11 @@ class FindPath:
                 grid[-1].append(0)
                 grid[i][j] = Node(i, j)
                 grid[i][j].type = initial_grid[i][j]
-
         return grid
-
-    def return_node(self, x, y):
-        node = self.grid[x][y]
-        print(f"type: {node.type}"
-              f"f: {node.f}")
-
-    def show_grid(self):
-        for i in range(self.height):
-            print()
-            for j in range(self.width):
-                print(f"{self.grid[i][j].type}, ", end='')
-        print()
 
     def g_score(self, node):
         if node.type == "*":
             return 20
-
         elif node.type in ['r', 'y', 'g'] and node.type not in self.keys:
             return -2
         elif abs(node.x - self.current_node.x) == 1 and abs(node.y - self.current_node.y) == 1:
