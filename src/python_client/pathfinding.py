@@ -1,7 +1,8 @@
 from math import sqrt
 
-
 final_keys = []
+
+
 class Node:
     def __init__(self, x, y):
         self.x = x
@@ -28,6 +29,7 @@ class FindPath:
         self.current_node = None
         self.final_path = []
         self.keys = []
+
     def find_path(self, start, end):
         self.open_set = []
         self.closed_set = []
@@ -35,8 +37,6 @@ class FindPath:
         self.start = self.grid[start[0]][start[1]]
         self.end = self.grid[end[0]][end[1]]
         global final_keys
-        print(f'start: {(self.start.x, self.start.y)} end: {(self.end.x, self.end.y)}')
-        print(f'final keys: {final_keys}')
         self.open_set.append(self.start)
         while len(self.open_set) > 0:
             self.a_star()
@@ -83,7 +83,6 @@ class FindPath:
                     self.open_set.append(neighbor)
 
                 self.closed_set.append(self.current_node)
-
 
     def update_node(self, node, temp_g):
         node.g = temp_g
@@ -181,35 +180,3 @@ class FindPath:
             if temp.type in ['r', 'g', 'y']:
                 self.keys.append(temp.type)
             temp = temp.previous
-
-
-
-
-
-
-
-
-# if __name__ == '__main__':
-#     grid = [
-#         ['EA', '1', 'W', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['1', '*', 'W', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
-#         ['W', 'W', 'W', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
-#         ['E', 'E', 'E', 'E', 'r', 'E', 'E', 'E', 'E', 'R', 'R', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E'],
-#         ['E', 'E', 'E', 'E', '3', 'E', 'E', 'Y', 'Y', 'E', 'E', '2', 'E', 'y', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['E', 'E', 'E', '*', 'E', 'E', '2', 'E', '1', '1', '1', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'g', 'r', 'y', 'E', 'E', 'E', 'E', 'E', 'E']
-#     ]
-#     height = 7
-#     width = 20
-#     # grid = [
-#     #     ['E', 'E', 'E', 'E'],
-#     #     ['E', 'W', 'W', 'W'],
-#     #     ['E', 'E', 'E', 'E']
-#     # ]
-#     # height = 3
-#     # width = 4
-#
-#     f = FindPath(grid, height, width)
-#     # f.show_grid()
-#     f.find_path((0, 0), (0, 1))
-
