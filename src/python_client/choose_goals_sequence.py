@@ -37,12 +37,12 @@ class ChooseGoalsSequence:
             evaluation_result = 0
             current_agent_loc = self.agent
             last_goal_type = self.last_gem
-            manhattan_distance = 0
+            total_distance = 0
             is_reachable = True
             for gem in seq:
                 diagonal_distance = calculate_diagonal_distance(current_agent_loc, gem)
-                manhattan_distance += abs(current_agent_loc.x - gem.x) + abs(current_agent_loc.y - gem.y)
-                if self.max_turn_count - self.turn_count + 1 < manhattan_distance:
+                total_distance += diagonal_distance
+                if self.max_turn_count - self.turn_count + 1 <= total_distance:
                     is_reachable = False
                     break
                 gem_seq_score = GEM_SEQUENCE_SCORE[last_goal_type][int(gem.type)-1]

@@ -67,8 +67,8 @@ class Agent(BaseAgent):
         evaluated_gems = self.evaluate_gems(self.gems_list)
         evaluated_gems.sort(key=attrgetter("evaluation_result"), reverse=True)
         for gem in evaluated_gems:
-            manhattan_distance = abs(self.agent.x - gem.x) + abs(self.agent.y - gem.y)
-            if self.max_turn_count - self.turn_count + 1 <= manhattan_distance:
+            diagonal_distance = calculate_diagonal_distance(self.agent, gem)
+            if self.max_turn_count - self.turn_count + 1 <= diagonal_distance:
                 evaluated_gems.pop(evaluated_gems.index(gem))
                 continue
         if not len(evaluated_gems) == 0:
@@ -99,13 +99,14 @@ class Agent(BaseAgent):
     def generate_actions(self):
         self.gems_list = self.find_gems()
         if self.last_gem == 0:
-            cgs = ChooseGoalsSequence(self.gems_list, self.coloring, self.grid, self.grid_height, self.grid_width, self.last_goal, self.last_gem, self.agent, self.max_turn_count, self.turn_count, self.gems_dispersion_coefficient)
+            cgs = ChooseGoalsSequence(self.gems_list, self.coloring, self.grid, self.grid_height, self.grid_width,
+                                      self.last_goal, self.last_gem, self.agent, self.max_turn_count, self.turn_count,
+                                      self.gems_dispersion_coefficient)
             fp, lg = cgs.generate_actions()
             self.last_goal = lg
             self.last_gem = int(self.last_goal.type)
             self.convert_path_to_action(fp)
             return
-
         self.agent = self.last_goal
         if not self.last_goal.type == '':
             self.last_gem = int(self.last_goal.type)

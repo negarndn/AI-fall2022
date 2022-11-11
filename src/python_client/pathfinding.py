@@ -149,20 +149,7 @@ class FindPath:
                 grid[-1].append(0)
                 grid[i][j] = Node(i, j)
                 grid[i][j].type = initial_grid[i][j]
-
         return grid
-
-    def return_node(self, x, y):
-        node = self.grid[x][y]
-        print(f"type: {node.type}"
-              f"f: {node.f}")
-
-    def show_grid(self):
-        for i in range(self.height):
-            print()
-            for j in range(self.width):
-                print(f"{self.grid[i][j].type}, ", end='')
-        print()
 
     def g_score(self, node):
         if node.type == "*":
@@ -185,38 +172,25 @@ class FindPath:
                 self.keys.append(temp.type)
             temp = temp.previous
 
-
     def find_path_with_keys(self, start, end):
-        print("couldn't find way trying new way...")
         self.door_allowed = True
         self.find_path((start.x, start.y), (end.x, end.y))
         if len(self.final_path) != 0:
             self.doors.reverse()
-            print(f'doors: {self.doors}')
             for door in self.doors:
                 if door.lower() not in self.keys:
                     keys_list = self.find_key(door)
                     if len(keys_list) != 0:
                         nearest_key = self.nearest_key(keys_list, start)
-                        print(f'next key: {nearest_key.type}')
                         self.door_allowed = False
                         path1 = self.find_path((start.x, start.y), (nearest_key.x, nearest_key.y))
-                        print('path1 S -> key')
-                        print(path1)
-                        print(f"start: {(nearest_key.x, nearest_key.y)}")
-                        print(f"end: {(end.x, end.y)}")
-                        print(f"door-allowed: {self.door_allowed}")
                         self.open_set = []
                         self.closed_set = []
                         self.current_node = None
-                        print(f"doors: {self.doors}")
                         f2 = FindPath(self.initial_grid, self.height, self.width)
                         path2 = f2.find_path((nearest_key.x, nearest_key.y), (end.x, end.y))
-                        print('path2 key -> E')
-                        print(path2)
                         path2.pop(path2.index((nearest_key.x, nearest_key.y)))
                         path = path2 + path1
-                        print(f'final path: {path}')
                         self.final_path = path
                         return
 
@@ -238,29 +212,3 @@ class FindPath:
                 distance = len(path)
                 nearest_key = key
         return nearest_key
-
-
-# if __name__ == '__main__':
-#     grid = [
-#         ['EA', '1', 'W', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['1', '*', 'W', 'y', 'G', 'E', 'E', 'E', 'E', 'E', '2', 'r', 'E', 'E', 'E', 'R', 'E', 'E', 'E', 'E'],
-#         ['W', 'W', 'W', 'E', 'E', 'E', 'G', 'G', 'E', 'E', '1', 'E', 'g', 'E', 'E', 'G', 'R', 'Y', 'E', 'E'],
-#         ['E', 'E', 'E', 'E', 'r', 'E', 'E', 'E', 'E', 'R', 'R', 'E', 'E', 'E', 'E', 'E', 'E', '*', 'E', 'E'],
-#         ['E', 'E', 'E', 'E', '3', 'E', 'E', 'Y', 'Y', 'E', 'E', '2', 'E', 'y', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['E', 'E', 'E', '*', 'E', 'E', '2', 'E', '1', '1', '1', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E'],
-#         ['E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'g', 'r', 'y', 'E', 'E', 'E', 'E', 'E', 'E']
-#     ]
-#     height = 7
-#     width = 20
-#     # grid = [
-#     #     ['E', 'E', 'E', 'E'],
-#     #     ['E', 'W', 'W', 'W'],
-#     #     ['E', 'E', 'E', 'E']
-#     # ]
-#     # height = 3
-#     # width = 4
-#
-#     f = FindPath(grid, height, width)
-#     # f.show_grid()
-#     f.find_path((0, 0), (0, 1))
-
