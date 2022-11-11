@@ -208,7 +208,7 @@ class FindPath:
         nearest_key = None
         for key in keys_list:
             path = f2.find_path((start.x, start.y), (key.x, key.y))
-            if len(path) < distance:
+            if len(path) < distance and len(path) != 0:
                 distance = len(path)
                 nearest_key = key
         return nearest_key
