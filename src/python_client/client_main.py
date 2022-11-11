@@ -2,7 +2,6 @@ from base import BaseAgent, Action
 from pathfinding import FindPath, Node
 from gem import Gem
 from operator import attrgetter
-from math import sqrt
 from coloring import Coloring
 
 GEM_SEQUENCE_SCORE = [
@@ -88,7 +87,7 @@ class Agent(BaseAgent):
                     gem = Gem(x, y)
                     gem.type = self.grid[x][y]
                     gems_list.append(gem)
-        self.gem_density = len(gems_list)
+        self.gem_density = len(gems_list) / (self.grid_width * self.grid_height)
         return gems_list
 
     def count_wall_density(self):
@@ -117,8 +116,7 @@ class Agent(BaseAgent):
 
     def do_turn(self) -> Action:
         if self.turn_count == 1:
-            self.count_wall_density()
-
+            # self.count_wall_density()
             self.coloring = Coloring(self.grid, self.grid_height, self.grid_width)
             self.coloring.bfs(0, 0)
 
